@@ -130,12 +130,13 @@ destinationPlaces.getPhoto = async(req,res) => {
           message: "Data Tidak Ditemukan",
         });
       } else {
-        return res.status(201).send(url);
+        return res.status(201).json({url});
       }
     }) 
    
 
   } catch (error) {
+      console.log(error);
       return res.status(500).json({
         status: 'Fail',
         message: "Terjadi kesalahan pada server",
