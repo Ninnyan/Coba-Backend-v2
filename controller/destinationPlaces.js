@@ -107,7 +107,7 @@ destinationPlaces.getPhoto = async(req,res) => {
     if(!getPhotoById) {
       return res.status(400).json({
         status: "Fail",
-        message: "Data Tidak Ditemukan",
+        message: "Data Wisata Tidak Ditemukan",
       });
     }
     const getPhotoByReference = Array(getPhotoById.photos_1,getPhotoById.photos_2,getPhotoById.photos_3)
