@@ -166,10 +166,10 @@ addDataDestinationController.editWisata = async(req,res) => {
               message: `Mohon lengkapi data ${filterFields.join(",")}`,
             });
         }
-        if (cekPlaceId) {
+        if (!cekPlaceId) {
             return res.status(400).json({
             status: "Fail",
-            message: "Place_id sudah terdaftar",
+            message: "id_wisata Tidak Ada",
             });
         }
         const result = await Wisata.update({
