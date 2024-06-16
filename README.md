@@ -15,6 +15,7 @@
 * cors
 * jsonwebtoken
 * bcrypt
+* AWS S3 Bucket
 
 ## Dokumentasi API dari Postman
 https://documenter.getpostman.com/view/29696074/2sA3XLDiov
