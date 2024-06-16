@@ -54,7 +54,8 @@ https://documenter.getpostman.com/view/29696074/2sA3XLDiov
 |/stock-tiket/edit-stock-tiket?idWisata={id_wisata}|/PUT|"qty": integer|Memperbarui Stock Tiket|/stock-tiket/edit-stock-tiket?idWisata=87e458c4b99b4eaaaffb0|{Authorizations: Bearer {token}, Content-Type: application/json}|
 |/admin/get-data-admin?idAdmin={id_admin}|/GET|-|Mendapatkan Data Admin|-|{Authorizations: Bearer {token}}|
 |/wisata/recommendation|/GET|-|Mendapatkan Data Rekomendasi|-|-|
-
+|/payment/get-total-pay|/GET|-|Mendapatkan Data Total Pendapatan|-|{Authorizations: Bearer {token}}|
+|/order/get-total-tiket|/GET|-|Mendapatkan Data Total Tiket|-|{Authorizations: Bearer {token}}|
 
                     
                           

@@ -223,5 +223,28 @@ orderController.delete = async(req,res) => {
   }
 }
 
+orderController.getTotalTiket = async(req,res) => {
+    try {
+        const findStatus = await Order.findAll({where: {status: 'settlement'}})
+
+        const mappingData = findStatus.map((data) => ({tiket: data.qty}))
+
+        const total = mappingData.reduce((total, data) => {
+            return total + data.tiket
+        }, 0)
+
+        return res.status(200).json({
+            status: 'Ok',
+            message: "Data berhasil diMuat",
+            tiket: total
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 'Fail',
+            message: "Terjadi kesalahan pada server",
+        });
+    }
+}
+
 module.exports = orderController
 

@@ -98,5 +98,27 @@ paymentController.payment = async(req,res) => {
       } 
 }
 
+paymentController.getTotal = async(req,res) => {
+    try {
+        const getData = await Riwayat.findAll()
+        const mappingData = getData.map((data) => ({total: data.total}))
+
+        const total = mappingData.reduce((total, data) => {
+            return total + data.total
+        }, 0)
+        return res.status(200).json({
+            status: 'Ok',
+            message: 'Data Berhasil dimuat',
+            total: total,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'Fail',
+            message: "Terjadi kesalahan pada server",
+        });
+    }
+}
+
 module.exports = paymentController
 
