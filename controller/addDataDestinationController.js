@@ -89,6 +89,33 @@ addDataDestinationController.wisata = async(req,res) => {
             photos_2: photos[1].key,
             photos_3: photos[2].key
         });
+
+        const getIdWisata = await Wisata.findOne({
+            where: {
+                name: name
+            }
+        })
+        if(!getIdWisata) {
+            return res.status(401).json({
+                status: "Fail",
+                message: "Nama Wisata tidak ada diDatabase",
+              });
+        }
+        const getIdWisataInStockTiket = await StockTiket.findOne({
+            where: {
+                id_wisata: getIdWisata.id
+            }
+        })
+        if(getIdWisataInStockTiket) {
+            return res.status(401).json({
+                status: "Fail",
+                message: "Hanya Boleh Menambahkan Satu Stock Tiket Per Wisata",
+              });
+        }
+        const stock = await StockTiket.create({
+            id_wisata: getIdWisata.id,
+            stock_tiket: 100
+        });
         return res.status(201).json({
             status: "Ok",
             message: "Data Wisata Berhasil Ditambahakan"
