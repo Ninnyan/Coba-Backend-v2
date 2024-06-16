@@ -27,56 +27,48 @@ addDataDestinationController.province = async(req,res) => {
 
 addDataDestinationController.wisata = async(req,res) => {
     const apiKey = process.env.API_MAP_KEY;
-    const {name,
-        deskripsi,
-        harga_tiket,
-        jam_operasional,
-        provinsi,
-    } = req.body
-    const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${name}&inputtype=textquery&fields=place_id,name,formatted_address&key=${apiKey}`
-    const photos = req.files
-    try {
-        const response = await fetch(url)
-        const data = await response.json()
-        const cekProvinsiId = await Provinsi.findOne({
-            where: {
-                name: provinsi
-            }
-        })
-        const cekPlaceId = await Wisata.findOne({
-            where: {
-                place_id: data.candidates[0].place_id
-            }
-        })
+    const { name, deskripsi, harga_tiket, jam_operasional, provinsi } = req.body;
+    const photos = req.files;
 
-        if(!cekProvinsiId) {
+    if (!name || !deskripsi || !harga_tiket || !jam_operasional || !provinsi || photos.length < 3) {
+        return res.status(400).json({
+            status: "Fail",
+            message: "Mohon lengkapi semua data dan pastikan ada 3 foto yang diunggah",
+        });
+    }
+
+    try {
+        // Fetch data from Google Maps API
+        const url = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${name}&inputtype=textquery&fields=place_id,name,formatted_address&key=${apiKey}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data.candidates || data.candidates.length === 0) {
+            return res.status(400).json({
+                status: "Fail",
+                message: "Tempat tidak ditemukan di Google Maps",
+            });
+        }
+
+        // Check if province exists
+        const cekProvinsiId = await Provinsi.findOne({ where: { name: provinsi } });
+        if (!cekProvinsiId) {
             return res.status(400).json({
                 status: "Fail",
                 message: "Provinsi Tidak Ditemukan",
-              });
-        }
-        const fields = [
-            "name",
-            "deskripsi",
-            "harga_tiket",
-            "jam_operasional",
-            "provinsi",
-        ];
-        const filterFields = fields.filter((f) => !req.body[f]);
-        if (filterFields.length) {
-            fs.unlinkSync(req.file.path);
-            return res.status(400).json({
-              status: "Fail",
-              message: `Mohon lengkapi data ${filterFields.join(",")}`,
             });
         }
+
+        // Check if place_id already exists
+        const cekPlaceId = await Wisata.findOne({ where: { place_id: data.candidates[0].place_id } });
         if (cekPlaceId) {
             return res.status(400).json({
-            status: "Fail",
-            message: "Place_id sudah terdaftar",
+                status: "Fail",
+                message: "Place_id sudah terdaftar",
             });
         }
-        console.log(photos[0]);
+
+        // Create new Wisata entry
         const result = await Wisata.create({
             name,
             id_province: cekProvinsiId.id,
@@ -90,38 +82,36 @@ addDataDestinationController.wisata = async(req,res) => {
             photos_3: photos[2].key
         });
 
-        const getIdWisata = await Wisata.findOne({
-            where: {
-                name: name
-            }
-        })
-        if(!getIdWisata) {
+        // Fetch the newly created Wisata entry
+        const getIdWisata = await Wisata.findOne({ where: { name } });
+        if (!getIdWisata) {
             return res.status(401).json({
                 status: "Fail",
-                message: "Nama Wisata tidak ada diDatabase",
-              });
+                message: "Nama Wisata tidak ada di Database",
+            });
         }
-        const getIdWisataInStockTiket = await StockTiket.findOne({
-            where: {
-                id_wisata: getIdWisata.id
-            }
-        })
-        if(getIdWisataInStockTiket) {
+
+        // Check if stock ticket already exists for this Wisata
+        const getIdWisataInStockTiket = await StockTiket.findOne({ where: { id_wisata: getIdWisata.id } });
+        if (getIdWisataInStockTiket) {
             return res.status(401).json({
                 status: "Fail",
                 message: "Hanya Boleh Menambahkan Satu Stock Tiket Per Wisata",
-              });
+            });
         }
-        const stock = await StockTiket.create({
+
+        // Create new StockTiket entry
+        await StockTiket.create({
             id_wisata: getIdWisata.id,
             stock_tiket: 100
         });
+
         return res.status(201).json({
             status: "Ok",
-            message: "Data Wisata Berhasil Ditambahakan"
+            message: "Data Wisata Berhasil Ditambahkan",
         });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return res.status(500).json({
             status: 'Fail',
             message: "Terjadi kesalahan pada server",
