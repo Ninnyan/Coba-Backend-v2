@@ -115,7 +115,7 @@ destinationPlaces.getPhoto = async(req,res) => {
     if(getPhotoByReference[photoReference] === undefined) {
       return res.status(400).json({
         status: "Fail",
-        message: "Data Tidak Ditemukan",
+        message: "Data Photo Tidak Ditemukan",
       });
     }
     const bucketName = 'photokalimantanexplore'
